@@ -1,0 +1,43 @@
+plugins {
+    id 'application'
+    id 'idea'
+}
+
+group 'de.famiru'
+version '1.0-SNAPSHOT'
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation platform(libs.log4j)
+    implementation 'org.apache.logging.log4j:log4j-api'
+    implementation "de.famiru.dlx:dlx:0.6.1"
+    runtimeOnly 'org.apache.logging.log4j:log4j-core'
+
+    testImplementation libs.junit.jupiter
+
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+application {
+    mainClass = 'de.famiru.tiwanaku.App'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
