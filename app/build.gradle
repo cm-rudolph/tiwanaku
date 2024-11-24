@@ -3,7 +3,7 @@ plugins {
     id 'idea'
 }
 
-group 'de.famiru'
+group 'de.famiru.tiwanaku'
 version '1.0-SNAPSHOT'
 
 idea {
