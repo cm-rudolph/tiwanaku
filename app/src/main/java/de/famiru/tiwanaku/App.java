@@ -1,11 +1,11 @@
 package de.famiru.tiwanaku;
 
 import de.famiru.dlx.Dlx;
+import de.famiru.dlx.DlxBuilder;
 import de.famiru.dlx.Stats;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.time.Instant;
 import java.util.*;
 
 public class App {
@@ -43,7 +43,7 @@ public class App {
         long start = System.nanoTime();
         new App(LEVEL).run();
         long durationInNs = System.nanoTime() - start;
-        LOGGER.info("Took {} ns.", durationInNs);
+        LOGGER.info("Took {} ms.", durationInNs / 1_000_000);
     }
 
     private int findMaxBiomeSize() {
@@ -135,14 +135,20 @@ public class App {
 
     private void run() {
         int secondaryConstraints = (width - 1) * (height - 1) * maxBiomeSize;
-        Dlx<ChoiceInfo> dlx = new Dlx<>(numberOfFieldFilledConstraints * 2, secondaryConstraints, 0, true, 1000000);
-        createChoices(dlx);
+        DlxBuilder<ChoiceInfo> builder = Dlx.builder()
+                .maxNumberOfSolutionsToStore(0)
+                .countAllSolutions(true)
+                .numberOfConstraints(numberOfFieldFilledConstraints * 2, secondaryConstraints)
+                .createChoiceBuilder();
+
+        createChoices(builder);
+        Dlx<ChoiceInfo> dlx = builder.build();
         dlx.solve();
         Stats stats = dlx.getStats();
         LOGGER.info(stats);
     }
 
-    private void createChoices(Dlx<ChoiceInfo> dlx) {
+    private void createChoices(DlxBuilder<ChoiceInfo> builder) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 for (int number = 0; number < biomeSizes.get(biomeIndices[y][x]); number++) {
@@ -172,7 +178,7 @@ public class App {
                         }
                     }
                     constraintIndices.sort(Comparator.naturalOrder());
-                    dlx.addChoice(new ChoiceInfo(x, y, number + 1), constraintIndices);
+                    builder.addChoice(new ChoiceInfo(x, y, number + 1), constraintIndices);
                 }
             }
         }
